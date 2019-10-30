@@ -499,7 +499,10 @@ class PdfFileWriter(object):
                 assert len(key) == (len(self._encrypt_key) + 5)
                 md5_hash = md5(key).digest()
                 key = md5_hash[:min(16, len(self._encrypt_key) + 5)]
-            obj.writeToStream(stream, key)
+            try:
+                obj.writeToStream(stream, key)
+            except:
+                pass
             stream.write(b_("\nendobj\n"))
 
         # xref table
@@ -1692,8 +1695,8 @@ class PdfFileReader(object):
         else:
             warnings.warn("Object %d %d not defined."%(indirectReference.idnum,
                         indirectReference.generation), utils.PdfReadWarning)
-            #if self.strict:
-            raise utils.PdfReadError("Could not find object.")
+            if self.strict:
+                raise utils.PdfReadError("Could not find object.")
         self.cacheIndirectObject(indirectReference.generation,
                     indirectReference.idnum, retval)
         return retval
